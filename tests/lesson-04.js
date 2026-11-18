@@ -64,9 +64,26 @@ async function main() {
 
   let testError = false;
   if (fs.existsSync(testFilePath)) {
+    // Windows compatibility fix:
+    // Original error: "spawnSync npm ENOENT"
+    // The original spawnSync('npm', ...) call failed on Windows,
+    // even though all six Jest unit tests passed successfully.
+    // Modified the script to use cmd.exe when running on Windows,
+    // while preserving the original npm command for other systems.
+    //
+    // *Source used for debugging and implementing the fix: ChatGPT (OpenAI).
+
     const result = spawnSync(
-      'npm',
-      ['test', '--', '--testPathPatterns=isValidPost', '--passWithNoTests'],
+      //Modification for Windows
+      process.platform === 'win32' ? 'cmd.exe' : 'npm',
+      process.platform === 'win32'
+        ? [
+            '/d',
+            '/s',
+            '/c',
+            'npm test -- --testPathPatterns=isValidPost --passWithNoTests',
+          ]
+        : ['test', '--', '--testPathPatterns=isValidPost', '--passWithNoTests'],
       { cwd: PROJECT_ROOT, encoding: 'utf8' },
     );
     testError = result.status !== 0;
