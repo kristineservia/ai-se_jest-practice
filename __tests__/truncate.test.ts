@@ -13,3 +13,11 @@ test('returns an empty string for empty input', () => {
     expect(truncate('', 10)).toBe('');
 });
 
+test('returns the text unchanged when its length equals maxLength', () => {
+    expect(truncate('Hello', 5)).toBe('Hello');
+});
+
+test('string truncates when text length exceeds maxLength by one', () => {
+    expect(truncate('Hello!', 5)).toBe('Hello...');
+});
+
